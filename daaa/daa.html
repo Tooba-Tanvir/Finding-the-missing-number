@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find the Missing Number</title>
+    <style>
+        body {
+            background-color: #3498db; /* Normal blue background for the entire page */
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #fff; /* White text color for contrast */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .container {
+            background: #ffffff; /* White background for content */
+            border-radius: 15px;
+            padding: 20px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            position: relative; /* Added to allow absolute positioning of the timer */
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #34495e; /* Darker grey for the title */
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #7f8c8d; /* Lighter grey text */
+        }
+
+        .numbers {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .number {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ecf0f1; /* Light grey background for numbers */
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            color: #2c3e50; /* Dark grey color for the number */
+        }
+
+        input {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+            border: 1px solid #bdc3c7; /* Light grey border */
+            border-radius: 5px;
+            width: calc(50% - 10px);
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #2980b9; /* University-like blue for buttons */
+            color: #fff;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:disabled {
+            background-color: #95a5a6; /* Disabled button color */
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #3498db; /* Lighter blue for hover effect */
+            transform: scale(1.05);
+        }
+
+        .feedback-box {
+            border: 1px solid #bdc3c7; /* Light border color */
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .feedback.correct {
+            color: #2ecc71; /* Green for correct answer */
+        }
+
+        .feedback.incorrect {
+            color: #e74c3c; /* Red for incorrect answer */
+        }
+
+        .reset-btn {
+            margin-top: 20px;
+            background-color: #f39c12; /* Orange reset button */
+        }
+
+        .reset-btn:hover {
+            background-color: #e67e22; /* Darker orange on hover */
+        }
+
+        .attempts {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #e74c3c; /* Red for failed attempts */
+        }
+
+        .timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c; /* Red timer color */
+        }
+
+        .start-btn {
+            padding: 10px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            background-color: #2980b9; /* Same university blue for start button */
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .start-btn:hover {
+            background-color: #3498db; /* Lighter blue on hover */
+        }
+
+        .loading-bar-container {
+            width: 100%;
+            background: #ecf0f1; /* Light grey background */
+            height: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-bar {
+            width: 0;
+            height: 100%;
+            background: #2980b9; /* Blue loading bar */
+            border-radius: 10px;
+            transition: width 0.1s ease;
+        }
+
+        .loading-text {
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #7f8c8d; /* Lighter grey text */
+        }
+
+        .gameArea {
+            background-color: #3498db; /* Normal blue background for the game area */
+            border-radius: 15px;
+            padding: 20px;
+            color: #fff; /* White text color for contrast */
+        }
+
+        .loading-text {
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #7f8c8d; /* Lighter grey text */
+        }
+
+        .rules-section {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for rules */
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            text-align: left;
+        }
+
+        .rules-section ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .rules-section li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="start-btn" id="startButton" onclick="startLoading()">Start Game</button>
+        <div id="loadingArea" style="display: none;">
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="loadingBar"></div>
+            </div>
+            <p class="loading-text" id="loadingText">0%</p>
+        </div>
+        <div id="gameArea" style="display:none">
+            <h1>Find the Missing Number</h1>
+            <p class="attempts">Failed Attempts: <span id="attempts">0</span></p>
+            <p>98 numbers are displayed below. One number is missing. Can you find it?</p>
+            <div class="timer" id="timer">120s</div>
+            <div class="numbers" id="numbers"></div>
+            <input type="number" id="guess" placeholder="Enter the missing number" />
+            <button id="submitButton" onclick="checkAnswer()">Submit</button>
+            <div id="feedback" class="feedback-box"></div>
+            <button class="reset-btn" onclick="resetGame()">Play Again</button>
+            <button class="start-btn" onclick="toggleRules()">View Rules</button>
+            <div id="rulesSection" class="rules-section">
+                <h3>Game Rules:</h3>
+                <ul>
+                    <li>1. You have 60 seconds to find the missing number.</li>
+                    <li>2. There are 98 numbers displayed, and one number between 0-99 is missing.</li>
+                    <li>3. You have a total of 5 chances to guess the missing number.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let missingNumber;
+        let attempts = 0;
+        let timeLeft = 120;
+        let timerInterval;
+        let loadingInterval;
+        const maxAttempts = 5;
+        const numbersDiv = document.getElementById('numbers');
+        const feedback = document.getElementById('feedback');
+        const attemptsDisplay = document.getElementById('attempts');
+        const submitButton = document.getElementById('submitButton');
+        const timerDisplay = document.getElementById('timer');
+        const startButton = document.getElementById('startButton');
+        const gameArea = document.getElementById('gameArea');
+        const loadingArea = document.getElementById('loadingArea');
+        const loadingBar = document.getElementById('loadingBar');
+        const loadingText = document.getElementById('loadingText');
+        const rulesSection = document.getElementById('rulesSection');
+
+        // Function to start loading process
+        function startLoading() {
+            startButton.style.display = 'none';
+            loadingArea.style.display = 'block';
+            let progress = 0;
+            loadingInterval = setInterval(() => {
+                progress += 2;
+                loadingBar.style.width = `${progress}%`;
+                loadingText.innerText = `${progress}%`;
+                if (progress >= 100) {
+                    clearInterval(loadingInterval);
+                    loadingArea.style.display = 'none';
+                    gameArea.style.display = 'block';
+                    initializeGame();
+                }
+            }, 100);
+        }
+
+        // Function to initialize the game
+        function initializeGame() {
+            numbersDiv.innerHTML = '';
+            feedback.innerText = '';
+            attempts = 0;
+            timeLeft = 120;
+            attemptsDisplay.innerText = attempts;
+            submitButton.disabled = false;
+
+            const allNumbers = Array.from({ length: 99 }, (_, i) => i + 1);
+            missingNumber = allNumbers[Math.floor(Math.random() * 99)];
+            const displayedNumbers = allNumbers.filter(num => num !== missingNumber);
+            displayedNumbers.sort(() => Math.random() - 0.5);
+
+            displayedNumbers.forEach(num => {
+                const div = document.createElement('div');
+                div.className = 'number';
+                div.innerText = num;
+                numbersDiv.appendChild(div);
+            });
+
+            startTimer();
+        }
+
+        // Function to start the timer
+        function startTimer() {
+            timerDisplay.innerText = `${timeLeft}s`;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = `${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerText = `⏳ Time's up! The missing number was ${missingNumber}. Please start again!`;
+                    submitButton.disabled = true;
+                }
+            }, 1000);
+        }
+
+        // Function to check the player's answer
+        function checkAnswer() {
+            const guess = parseInt(document.getElementById('guess').value);
+            if (isNaN(guess) || guess < 1 || guess > 99) {
+                feedback.className = 'feedback';
+                feedback.style.color = '#ffc107';
+                feedback.innerText = '❌ Please enter a valid number between 1 and 99.';
+                return;
+            }
+            if (guess === missingNumber) {
+                feedback.className = 'feedback correct';
+                feedback.innerText = `🎉 Correct! The missing number is ${missingNumber}.`;
+                submitButton.disabled = true;
+                clearInterval(timerInterval);
+            } else {
+                attempts++;
+                attemptsDisplay.innerText = attempts;
+                if (attempts >= maxAttempts) {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerText = `❌ You've used all ${maxAttempts} attempts. The missing number was ${missingNumber}. Please start again!`;
+                    submitButton.disabled = true;
+                    clearInterval(timerInterval);
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerText = `❌ Incorrect. You have ${maxAttempts - attempts} attempts left.`;
+                }
+            }
+        }
+
+        // Function to toggle the visibility of the rules section
+        function toggleRules() {
+            if (rulesSection.style.display === "none") {
+                rulesSection.style.display = "block";
+            } else {
+                rulesSection.style.display = "none";
+            }
+        }
+
+        // Function to reset the game
+        function resetGame() {
+            document.getElementById('guess').value = '';
+            clearInterval(timerInterval);
+            initializeGame();
+        }
+    </script>
+</body>
+</html>
